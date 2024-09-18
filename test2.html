@@ -1,0 +1,188 @@
+<html></html>
+<head>
+    <title>Booking place for your dinner!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #000;
+            border-radius: 5px;
+        }
+        h1 {
+            font-size: 24px;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="tel"] {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .time-options, .food-options {
+            margin-top: 10px;
+        }
+        .time-options label, .food-options label {
+            display: block;
+            margin-top: 5px;
+        }
+        input[type="submit"] {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+        .message {
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+            color: red;
+        }
+        .error {
+            border-color: red;
+            background-color: #ffe6e6;
+        }
+        .reservation-message {
+            margin-top: 20px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Booking place for your dinner!</h1>
+        <form id="bookingForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name">
+            
+            <label for="phone">Phone number</label>
+            <input type="tel" id="phone" name="phone">
+            
+            <div class="time-options">
+                <label>Select a time</label>
+                <label><input type="radio" name="time" value="05:00" checked> 05:00</label>
+                <label><input type="radio" name="time" value="06:00"> 06:00</label>
+                <label><input type="radio" name="time" value="07:00"> 07:00</label>
+                <label><input type="radio" name="time" value="08:00"> 08:00</label>
+            </div>
+            
+            <div class="food-options">
+                <label>What would you like to have with us ?</label>
+                <label><input type="checkbox" name="food" value="Starters"> Starters</label>
+                <label><input type="checkbox" name="food" value="Main_Course"> Main_Course</label>
+                <label><input type="checkbox" name="food" value="Desserts"> Desserts</label>
+                <label><input type="checkbox" name="food" value="Drinks"> Drinks</label>
+            </div>
+            
+            <input type="submit" value="Submit" id="submitBtn" disabled>
+            <span class="message" id="message">...</span>
+        </form>
+        <div class="reservation-message" id="reservationMessage"></div>
+    </div>
+
+    <script>
+        const nameInput = document.getElementById('name');
+        const phoneInput = document.getElementById('phone');
+        const submitBtn = document.getElementById('submitBtn');
+        const message = document.getElementById('message');
+        const reservationMessage = document.getElementById('reservationMessage');
+        const timeOptions = document.querySelectorAll('input[name="time"]');
+        const foodOptions = document.querySelectorAll('input[name="food"]');
+
+        function validateName() {
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                message.textContent = 'Error: Name is empty.';
+                nameInput.classList.add('error');
+                return false;
+            }
+
+            if (!name.includes(' ')) {
+                message.textContent = 'Error: First and last names are required.';
+                nameInput.classList.add('error');
+                return false;
+            }
+
+            nameInput.classList.remove('error');
+            nameInput.style.backgroundColor = 'white';
+            return true;
+        }
+
+        function validatePhone() {
+            const phone = phoneInput.value.trim();
+            const phonePattern = /^[0-9][0-9a-zA-Z]{5}$/;
+
+            if (!phone) {
+                message.textContent = 'Error: Phone number is empty.';
+                phoneInput.classList.add('error');
+                return false;
+            }
+
+            if (!phonePattern.test(phone)) {
+                if (!/^[0-9]/.test(phone)) {
+                    message.textContent = 'Error: Phone number must start with numbers.';
+                } else {
+                    message.textContent = 'Error: Phone numbers must have exactly 6 characters.';
+                }
+                phoneInput.classList.add('error');
+                return false;
+            }
+
+            phoneInput.classList.remove('error');
+            phoneInput.style.backgroundColor = 'white';
+            return true;
+        }
+
+        function validateForm() {
+            const isNameValid = validateName();
+            const isPhoneValid = validatePhone();
+
+            if (isNameValid && isPhoneValid) {
+                submitBtn.disabled = false;
+                submitBtn.style.cursor = 'pointer';
+                message.textContent = '';
+                updateReservationMessage();
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.style.cursor = 'not-allowed';
+                reservationMessage.textContent = '';
+            }
+        }
+
+        function updateReservationMessage() {
+            const name = nameInput.value.trim();
+            const phone = phoneInput.value.trim();
+            const selectedTime = document.querySelector('input[name="time"]:checked').value;
+            const selectedFoods = Array.from(foodOptions)
+                .filter(option => option.checked)
+                .map(option => option.value)
+                .join(', ');
+
+            if (name && phone) {
+                reservationMessage.textContent = `Reservation for: ${name} (${phone}) at ${selectedTime}. Starters are: ${selectedFoods}`;
+            } else {
+                reservationMessage.textContent = '';
+            }
+        }
+
+        nameInput.addEventListener('input', validateForm);
+        phoneInput.addEventListener('input', validateForm);
+        nameInput.addEventListener('blur', validateName);
+        phoneInput.addEventListener('blur', validatePhone);
+        timeOptions.forEach(option => option.addEventListener('change', validateForm));
+        foodOptions.forEach(option => option.addEventListener('change', validateForm));
+    </script>
+</body>
+</html>
